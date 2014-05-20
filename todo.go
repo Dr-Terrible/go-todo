@@ -250,9 +250,10 @@ func main() {
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		{
-			Name:        "env",
-			Usage:       "Prints `todo` environment information.",
-			Description: "By default env prints information as a shell script.\n   The environment info will be dumped in straight-forward\n   form suitable for sourcing into a shell script.\n\n   If one or more variable names is given as arguments, env\n   prints the value of each named variable on its own line.",
+			Name:            "env",
+			Usage:           "Prints `todo` environment information.",
+			Description:     "By default env prints information as a shell script.\n   The environment info will be dumped in straight-forward\n   form suitable for sourcing into a shell script.\n\n   If one or more variable names is given as arguments, env\n   prints the value of each named variable on its own line.",
+			SkipFlagParsing: true,
 			Action: func(c *cli.Context) {
 				// collect all the user-submitted arguments in an array
 				// and store its lenght for later usage
@@ -282,18 +283,36 @@ func main() {
 			},
 		},
 		{
-			Name:        "init",
-			Usage:       "Create a configuration file with default values",
-			Description: "This command creates a configuration file with default values - basically\n   a TODO_DIR, TODO_FILE, DONE_FILE, REPORT_FILE and TODO_ACTIONS_DIR.\n\n   If the option `-d` is set then it specifies a path to use instead of\n   ./todo.cfg as the destination path for the configuration file\n\n   Running `todo init` in a pre-initialized directory is safe; it will not\n   overwrite things that are already there.",
+			Name:  "init",
+			Usage: "Initialize a new todo.txt structure with default values",
+			Description: `
+   This command creates all the template file required by the todo.txt and
+   a configuration files with default values - basically, the values TODO_DIR,
+   TODO_FILE, DONE_FILE, REPORT_FILE and TODO_ACTIONS_DIR are exported.
+
+   If the option '--dest' is set then it specifies a path to use instead of
+   the working directory as the destination path for the new structure.
+
+   Running 'todo init' in a pre-initialized directory is safe; it will not
+   overwrite things that are already there.`,
+			Flags: []cli.Flag{
+				cli.StringFlag{"dest, d", "/path/to/your/dir", "specifies a different destination path"},
+			},
 			Action: func(c *cli.Context) {
-				initAction(".")
+				destination := "."
+				if c.String("dest") != "" {
+					//fmt.Println("dest:", c.String("dest"))
+					destination = c.String("dest")
+				}
+				initAction(destination)
 			},
 		},
 		{
-			Name:        "add",
-			ShortName:   "a",
-			Usage:       "Adds a task to your todo.txt file.",
-			Description: "add \"feed the cat\"\n   Adds \"feed the cat\" to your todo.txt file on its own line.",
+			Name:            "add",
+			ShortName:       "a",
+			Usage:           "Adds a task to your todo.txt file.",
+			Description:     "add \"feed the cat\"\n   Adds \"feed the cat\" to your todo.txt file on its own line.",
+			SkipFlagParsing: true,
 			Action: func(c *cli.Context) {
 				// TODO: validating input as a task
 
@@ -305,10 +324,13 @@ func main() {
 			},
 		},
 		/*{
-			Name:  "complete",
-			Usage: "Completes a task",
+			Name:  "status",
+			Usage: "Obtain a summary of the todo.txt structure",
+			Flags: []cli.Flag{
+				cli.StringFlag{"dest, d", "", "specifies a different destination path"},
+			},
 			Action: func(c *cli.Context) {
-				fmt.Println("completed task: ", c.Args().First())
+				//fmt.Println("status: ", c.Args().First())
 			},
 		},*/
 	}
