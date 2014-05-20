@@ -5,14 +5,25 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/joho/godotenv"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 var (
-	/* This map stores all the environment variables related to todo.txt CLI
+	/*
+	 * This map stores some useful global environment variables used
+	 * internally by the logic of the tool (we avoid to clutter the source
+	 * code with redundant calls to pkg/os functions).
 	 */
 	ENV = map[string]string{
-		"HOME":                 "",
+		"PWD":  "",
+		"HOME": "",
+	}
+
+	/*
+	 * This map stores all the environment variables used by the todo.txt CLI
+	 */
+	TODOENV = map[string]string{
 		"TODO_DIR":             "",
 		"TODO_FILE":            "",
 		"DONE_FILE":            "",
@@ -59,28 +70,130 @@ func Exists(path string) (bool, error) {
 }
 
 // Adds a task to a todo.txt file.
-func addTask(task string) {
-	// TODO: ENV["TODO_FILE"] path should be validated somehow
+func addAction(task string) {
+	// TODO: TODOENV["TODO_FILE"] path should be validated somehow
 	// before to be stated by os.OpenFile
-	//path.Clean(ENV["TODO_FILE"])
+	//path.Clean(TODOENV["TODO_FILE"])
 
 	// Open todo.txt in append mode only
-	todoFile, err := os.OpenFile(ENV["TODO_FILE"], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
+	todoFile, err := os.OpenFile(TODOENV["TODO_FILE"], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
 	defer todoFile.Close()
 	check(err)
 
 	// add the task to the todo.txt file
 	ret, err := todoFile.WriteString(task + "\n")
+	check(err)
 	fmt.Printf("added new task (%d bytes): \"%s\"\n", ret, task)
 
 	// sync / flush todo.txt
 	todoFile.Sync()
 }
 
+// Create a todo.txt structure at the specified location (default destination is ".")
+func initAction(destination string) {
+
+	var (
+		FileName = map[string]string{
+			"cfg":    "/todo.cfg",
+			"todo":   "/todo.txt",
+			"done":   "/done.txt",
+			"report": "/report.txt",
+		}
+
+		FileTemplate = map[string]string{
+			"cfg": `
+# === EDIT FILE LOCATIONS BELOW ===
+
+# Your todo.txt directory
+#export TODO_DIR="$HOME/todo"
+export TODO_DIR="."
+
+# Your todo/done/report.txt locations
+export TODO_FILE="$TODO_DIR/todo.txt"
+export DONE_FILE="$TODO_DIR/done.txt"
+export REPORT_FILE="$TODO_DIR/report.txt"
+
+# You can customize your actions directory location
+#export TODO_ACTIONS_DIR="$HOME/.todo.actions.d"`,
+			"todo":   "",
+			"done":   "",
+			"report": "",
+		}
+
+		initiated = false
+		message   = "Initialized a new"
+	)
+
+	// try to guess if the destination is an existing and
+	// pre-configured todo.txt structure.
+	for _, filename := range FileName {
+		// sanitize the absolute path of the file
+		filePath, err := filepath.Abs(destination + filename)
+		//fmt.Printf("absolute path: %s\n", cfgFilePath)
+		check(err)
+
+		ret, _ := Exists(filePath)
+		if ret {
+			initiated = true
+			break
+		}
+	}
+
+	// if the destination is an existing todo.txt structure then
+	// change the message accordingly
+	if initiated {
+		message = "Reinitialized an existing"
+	}
+
+	// sanitize the absolute path of the destination
+	filePath, err := filepath.Abs(destination)
+	check(err)
+
+	// print first line of the action's summary
+	fmt.Printf("%s todo.txt structure in %s\n", message, filePath)
+
+	// create the missing files of the todo.txt structure
+	for k, filename := range FileName {
+		// sanitize the absolute path of the file
+		filePath, err := filepath.Abs(destination + FileName[k])
+		check(err)
+		//fmt.Printf("absolute path: %s\n", filePath)
+
+		// Open file
+		file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+		defer file.Close()
+
+		// if there aren't errors, write a new file with default values
+		if err == nil {
+			size, err := file.WriteString(FileTemplate[k])
+			check(err)
+
+			// sync / flush file
+			file.Sync()
+
+			// print a small summary
+			fmt.Printf("%s [%s] (%d bytes)\n", filename, "new", size)
+			continue
+		}
+
+		// file exists, there is nothing to write
+		if os.IsExist(err) {
+			// print a small summary
+			fmt.Printf("%s [%s]\n", filename, "exists")
+			continue
+		}
+	}
+}
+
 func main() {
 
-	// Retrieve environment variable $HOME
+	// Retrieve environment variables $HOME and $PWD
+	pwd, err := os.Getwd()
+	check(err)
 	ENV["HOME"] = os.Getenv("HOME")
+	ENV["PWD"] = pwd
+
+	// Expand $HOME var inside CFG slice
 	if ENV["HOME"] != "" {
 		// $HOME isn't empty, we expand $HOME for CFG[0] and CFG[1]
 		CFG[0] = strings.Replace(CFG[0], "$HOME", ENV["HOME"], -1)
@@ -107,30 +220,24 @@ func main() {
 		}
 	}
 
-	// Populate ENV map with environment variables
-	for k, _ := range ENV {
-		if k == "HOME" {
-			continue
-		}
-		ENV[k] = os.Getenv(k)
+	// Populate TODOENV map with environment variables
+	for k, _ := range TODOENV {
+		TODOENV[k] = os.Getenv(k)
 	}
-	//fmt.Println("map:", ENV)
+	//fmt.Println("map:", TODOENV)
 
-	// Filter ENV map to expand bash variables
-	for k, v := range ENV {
-		if k == "HOME" {
-			continue
-		}
+	// Sanitize TODOENV map by expanding bash variables
+	for k, v := range TODOENV {
 		// expand $HOME var
 		v = strings.Replace(v, "$HOME", ENV["HOME"], -1)
 		v = strings.Replace(v, "${HOME}", ENV["HOME"], -1)
 
 		// Expand $TODO_DIR var
-		v = strings.Replace(v, "$TODO_DIR", ENV["TODO_DIR"], -1)
-		v = strings.Replace(v, "${TODO_DIR}", ENV["TODO_DIR"], -1)
+		v = strings.Replace(v, "$TODO_DIR", TODOENV["TODO_DIR"], -1)
+		v = strings.Replace(v, "${TODO_DIR}", TODOENV["TODO_DIR"], -1)
 
-		// save the filtered value
-		ENV[k] = v
+		// save the sanitized value
+		TODOENV[k] = v
 	}
 
 	// Initialize the app CLI
@@ -152,10 +259,14 @@ func main() {
 				args := c.Args()
 				nargs := len(args)
 
+				// debugging
+				/*fmt.Printf("pwd: %s\n", pwd)
+				fmt.Printf("HOME=\"%s\"\n", ENV["HOME"])*/
+
 				// print only the required environment variables
 				if 0 < nargs {
 					for _, arg := range args {
-						fmt.Printf("%s=\"%s\"\n", arg, ENV[arg])
+						fmt.Printf("%s=\"%s\"\n", arg, TODOENV[arg])
 					}
 					// return since there is nothing else to do
 					// (this reduce code size as the go compiler can optimize the branching)
@@ -164,10 +275,18 @@ func main() {
 
 				// print all the environment variables
 				if 0 == nargs {
-					for k, v := range ENV {
+					for k, v := range TODOENV {
 						fmt.Printf("%s=\"%s\"\n", k, v)
 					}
 				}
+			},
+		},
+		{
+			Name:        "init",
+			Usage:       "Create a configuration file with default values",
+			Description: "This command creates a configuration file with default values - basically\n   a TODO_DIR, TODO_FILE, DONE_FILE, REPORT_FILE and TODO_ACTIONS_DIR.\n\n   If the option `-d` is set then it specifies a path to use instead of\n   ./todo.cfg as the destination path for the configuration file\n\n   Running `todo init` in a pre-initialized directory is safe; it will not\n   overwrite things that are already there.",
+			Action: func(c *cli.Context) {
+				initAction(".")
 			},
 		},
 		{
@@ -182,7 +301,7 @@ func main() {
 				task := fmt.Sprintf("%s", c.Args().First())
 
 				// Add the new task
-				addTask(task)
+				addAction(task)
 			},
 		},
 		/*{

@@ -1,6 +1,6 @@
 # go-gtd
 
-[![Build Status](https://travis-ci.org/toffanin/go-gtd.png?branch=master)](https://travis-ci.org/toffanin/go-gtd) [![GoDoc](https://godoc.org/github.com/toffanin/go-gtd?status.png)](https://godoc.org/github.com/toffanin/go-gtd) 
+[![Build Status](https://travis-ci.org/toffanin/go-gtd.svg?branch=master)](https://travis-ci.org/toffanin/go-gtd) [![GoDoc](https://godoc.org/github.com/toffanin/go-gtd?status.png)](https://godoc.org/github.com/toffanin/go-gtd) 
 
 `Go - Getting Things Done` provides a more advanced drop in replacement for the bash version of [Todo.txt CLI](https://github.com/ginatrapani/todo.txt-cli) and is meant to handle the following features:
 
