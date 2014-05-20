@@ -1,0 +1,12 @@
+language: go
+go:
+  - 1.2
+  - tip
+env:
+  - GOARCH=amd64
+notifications:
+  email:
+    recipients:
+      - toffanin.mauro@gmail.com
+    on_success: change
+    on_failure: always
