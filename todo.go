@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/codegangsta/cli"
-	"github.com/joho/godotenv"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/codegangsta/cli"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -53,6 +54,7 @@ var (
 // TODO: this is an ugly and hackish error handler that needs to be improved
 func check(e error) {
 	if e != nil {
+		fmt.Errorf("%v", e)
 		panic(e)
 	}
 }
@@ -242,7 +244,7 @@ func main() {
 
 	// Initialize the app CLI
 	app := cli.NewApp()
-	app.Name = "todo"
+	app.Name = "go-todo"
 	app.Usage = "A simple and extensible utility for managing your todo.txt files"
 	app.Version = "1.0.0"
 	app.Author = "Mauro Toffanin"
@@ -334,5 +336,6 @@ func main() {
 			},
 		},*/
 	}
-	app.Run(os.Args)
+	err = app.Run(os.Args)
+	check(err)
 }
