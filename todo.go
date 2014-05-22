@@ -258,26 +258,20 @@ func main() {
 			SkipFlagParsing: true,
 			Action: func(c *cli.Context) {
 				// collect all the user-submitted arguments in an array
-				// and store its lenght for later usage
 				args := c.Args()
-				nargs := len(args)
 
 				// debugging
 				/*fmt.Printf("pwd: %s\n", pwd)
 				fmt.Printf("HOME=\"%s\"\n", ENV["HOME"])*/
 
-				// print only the required environment variables
-				if 0 < nargs {
+				switch args.Present() {
+				case true:
+					// print only the required environment variables
 					for _, arg := range args {
 						fmt.Printf("%s=\"%s\"\n", arg, TODOENV[arg])
 					}
-					// return since there is nothing else to do
-					// (this reduce code size as the go compiler can optimize the branching)
-					return
-				}
-
-				// print all the environment variables
-				if 0 == nargs {
+				case false:
+					// print all the environment variables
 					for k, v := range TODOENV {
 						fmt.Printf("%s=\"%s\"\n", k, v)
 					}
@@ -316,12 +310,31 @@ func main() {
 			Description:     "add \"feed the cat\"\n   Adds \"feed the cat\" to your todo.txt file on its own line.",
 			SkipFlagParsing: true,
 			Action: func(c *cli.Context) {
+				// collect all the user-submitted arguments in an array
+				// and store its lenght for later usage
+				args := c.Args()
+				nargs := len(args)
+
+				// debugging
+				//fmt.Printf("args (%d): %s\n", nargs, args)
+
+				// print only the required environment variables
+				if 1 < nargs {
+					fmt.Println("\nIncorrect Usage: cannot use two options with command \"add\"\n")
+					cli.ShowCommandHelp(c, "add")
+					return
+				}
+
 				// TODO: validating input as a task
 
 				// TODO: task mangler
 				task := fmt.Sprintf("%s", c.Args().First())
+				r := strings.NewReplacer("\n", " ", "\t", " ", "\r", " ")
+				task = r.Replace(task)
+				task = strings.TrimSpace(task)
 
 				// Add the new task
+				fmt.Printf("task: |%s|\n", task)
 				addAction(task)
 			},
 		},
