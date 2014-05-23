@@ -321,10 +321,39 @@ func main() {
 	}
 
 	addCommand := cli.Command{
-		Name:        "add",
-		ShortName:   "a",
-		Usage:       "Adds a task to your todo.txt file.",
-		Description: "add \"feed the cat\"\n   Adds \"feed the cat\" to your todo.txt file on its own line.",
+		Name:      "add",
+		ShortName: "a",
+		Usage:     "Adds a task to your todo.txt file.",
+		Description: `
+   This command can be used to add the specified task to your todo.txt file on
+   its own line.
+
+   Project and content notation is optional. Quotes are optional too.
+
+EXAMPLES
+
+   Adds a simple task (quotes are optional):
+
+      $ todo add "Move out cardboard boxes from the garage"
+
+   Adds tasks with a project notation (quotes are optional):
+
+      $ todo add "Move out cardboard boxes from the garage +cleaning"
+      $ todo add "Do a load of laundry +cleaning"
+      $ todo add "Vacuum the house +cleaning"
+
+   Adds tasks with a context notation (quotes are optional):
+
+      $ todo add "Buy eggs and milk @grocery"
+      $ todo add "Buy a cake for friday's dinner party with friends @backery"
+
+   Adds tasks with both project and context notation (quotes are optional):
+
+      $ todo add "Feed the kitten +BellyOfTheBeast"
+      $ todo add "Buy food with amino acid taurine @petshop +BellyOfTheBeast"
+      $ todo add "Buy huge amont of meat @butcher +BellyOfTheBeast"
+      $ todo add "Hire a bouncer to protect @kitchen cupboard from the cat +BellyOfTheBeast"
+`,
 		Action: func(c *cli.Context) {
 			// collect all the user-submitted arguments in an array
 			args := c.Args()
