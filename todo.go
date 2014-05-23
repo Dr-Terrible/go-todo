@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/joho/godotenv"
@@ -77,18 +80,40 @@ func addAction(task string) {
 	// before to be stated by os.OpenFile
 	//path.Clean(TODOENV["TODO_FILE"])
 
+	// determine the number of tasks in todo.txt
+	// TODO: with NewReadWriter the code should be more compact
+	fd, err := os.OpenFile(TODOENV["TODO_FILE"], os.O_RDONLY|os.O_CREATE, 0600)
+	check(err)
+	scanner := bufio.NewScanner(fd)
+	ntasks := 1
+	for scanner.Scan() {
+		ntasks++
+	}
+	if err := scanner.Err(); err != nil {
+		fd.Close()
+		check(err)
+	}
+	//fmt.Printf("n. lines: %d\n", ntasks)
+	err = fd.Close()
+	check(err)
+
 	// Open todo.txt in append mode only
-	todoFile, err := os.OpenFile(TODOENV["TODO_FILE"], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
-	defer todoFile.Close()
+	fd, err = os.OpenFile(TODOENV["TODO_FILE"], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
+	check(err)
+	defer fd.Close()
+
+	// use buffered I/O
+	writer := bufio.NewWriter(fd)
+
+	// add the task to todo.txt
+	_, err = writer.WriteString(task + "\n")
+	check(err)
+	err = writer.Flush()
 	check(err)
 
-	// add the task to the todo.txt file
-	ret, err := todoFile.WriteString(task + "\n")
-	check(err)
-	fmt.Printf("added new task (%d bytes): \"%s\"\n", ret, task)
-
-	// sync / flush todo.txt
-	todoFile.Sync()
+	// print summary
+	fmt.Printf("%d: %s\n", ntasks, task)
+	fmt.Printf("TODO: %d added\n", ntasks)
 }
 
 // Create a todo.txt structure at the specified location (default destination is ".")
@@ -242,46 +267,37 @@ func main() {
 		TODOENV[k] = v
 	}
 
-	// Initialize the app CLI
-	app := cli.NewApp()
-	app.Name = "go-todo"
-	app.Usage = "A simple and extensible utility for managing your todo.txt files"
-	app.Version = "1.0.0"
-	app.Author = "Mauro Toffanin"
-	app.Email = "toffanin.mauro@gmail.com"
-	app.EnableBashCompletion = true
-	app.Commands = []cli.Command{
-		{
-			Name:            "env",
-			Usage:           "Prints `todo` environment information.",
-			Description:     "By default env prints information as a shell script.\n   The environment info will be dumped in straight-forward\n   form suitable for sourcing into a shell script.\n\n   If one or more variable names is given as arguments, env\n   prints the value of each named variable on its own line.",
-			SkipFlagParsing: true,
-			Action: func(c *cli.Context) {
-				// collect all the user-submitted arguments in an array
-				args := c.Args()
+	envCommand := cli.Command{
+		Name:        "env",
+		Usage:       "Prints `todo` environment information.",
+		Description: "By default env prints information as a shell script.\n   The environment info will be dumped in straight-forward\n   form suitable for sourcing into a shell script.\n\n   If one or more variable names is given as arguments, env\n   prints the value of each named variable on its own line.",
+		Action: func(c *cli.Context) {
+			// collect all the user-submitted arguments in an array
+			args := c.Args()
 
-				// debugging
-				/*fmt.Printf("pwd: %s\n", pwd)
-				fmt.Printf("HOME=\"%s\"\n", ENV["HOME"])*/
+			// debugging
+			/*fmt.Printf("pwd: %s\n", pwd)
+			fmt.Printf("HOME=\"%s\"\n", ENV["HOME"])*/
 
-				switch args.Present() {
-				case true:
-					// print only the required environment variables
-					for _, arg := range args {
-						fmt.Printf("%s=\"%s\"\n", arg, TODOENV[arg])
-					}
-				case false:
-					// print all the environment variables
-					for k, v := range TODOENV {
-						fmt.Printf("%s=\"%s\"\n", k, v)
-					}
+			switch args.Present() {
+			case true:
+				// print only the required environment variables
+				for _, arg := range args {
+					fmt.Printf("%s=\"%s\"\n", arg, TODOENV[arg])
 				}
-			},
+			case false:
+				// print all the environment variables
+				for k, v := range TODOENV {
+					fmt.Printf("%s=\"%s\"\n", k, v)
+				}
+			}
 		},
-		{
-			Name:  "init",
-			Usage: "Initialize a new todo.txt structure with default values",
-			Description: `
+	}
+
+	initCommand := cli.Command{
+		Name:  "init",
+		Usage: "Initialize a new todo.txt structure with default values",
+		Description: `
    This command creates all the template file required by the todo.txt and
    a configuration files with default values - basically, the values TODO_DIR,
    TODO_FILE, DONE_FILE, REPORT_FILE and TODO_ACTIONS_DIR are exported.
@@ -291,53 +307,110 @@ func main() {
 
    Running 'todo init' in a pre-initialized directory is safe; it will not
    overwrite things that are already there.`,
-			Flags: []cli.Flag{
-				cli.StringFlag{"dest, d", "/path/to/your/dir", "specifies a different destination path"},
-			},
-			Action: func(c *cli.Context) {
-				destination := "."
-				if c.String("dest") != "" {
-					//fmt.Println("dest:", c.String("dest"))
-					destination = c.String("dest")
-				}
-				initAction(destination)
-			},
+		Flags: []cli.Flag{
+			cli.StringFlag{"dest, d", "/path/to/your/dir", "specifies a different destination path"},
 		},
-		{
-			Name:            "add",
-			ShortName:       "a",
-			Usage:           "Adds a task to your todo.txt file.",
-			Description:     "add \"feed the cat\"\n   Adds \"feed the cat\" to your todo.txt file on its own line.",
-			SkipFlagParsing: true,
-			Action: func(c *cli.Context) {
-				// collect all the user-submitted arguments in an array
-				// and store its lenght for later usage
-				args := c.Args()
-				nargs := len(args)
-
-				// debugging
-				//fmt.Printf("args (%d): %s\n", nargs, args)
-
-				// print only the required environment variables
-				if 1 < nargs {
-					fmt.Println("\nIncorrect Usage: cannot use two options with command \"add\"\n")
-					cli.ShowCommandHelp(c, "add")
-					return
-				}
-
-				// TODO: validating input as a task
-
-				// TODO: task mangler
-				task := fmt.Sprintf("%s", c.Args().First())
-				r := strings.NewReplacer("\n", " ", "\t", " ", "\r", " ")
-				task = r.Replace(task)
-				task = strings.TrimSpace(task)
-
-				// Add the new task
-				fmt.Printf("task: |%s|\n", task)
-				addAction(task)
-			},
+		Action: func(c *cli.Context) {
+			destination := "."
+			if c.IsSet("dest") {
+				//fmt.Println("dest:", c.String("dest"))
+				destination = c.String("dest")
+			}
+			initAction(destination)
 		},
+	}
+
+	addCommand := cli.Command{
+		Name:        "add",
+		ShortName:   "a",
+		Usage:       "Adds a task to your todo.txt file.",
+		Description: "add \"feed the cat\"\n   Adds \"feed the cat\" to your todo.txt file on its own line.",
+		Action: func(c *cli.Context) {
+			// collect all the user-submitted arguments in an array
+			args := c.Args()
+
+			// debugging
+			/*fmt.Printf("(add::Action) args (%d): %s\n", len(args), args)
+			fmt.Printf("(add::Action) global flag: %s\n", c.GlobalString("t"))*/
+
+			// check incorrect usage of the command
+			switch {
+			case len(args) == 0: // no options specified
+				fmt.Print("\nIncorrect Usage: missing option with command \"add [task]\"\n\n")
+				cli.ShowCommandHelp(c, "add")
+				return
+			}
+
+			// TODO: validating input as a task
+
+			/* task mangler
+			 * - collect all the arguments into a single string
+			 * - replace return carriage chars with spaces
+			 * - trim the task from leading / ending spaces
+			 * - honor the -t/-T global flag if present
+			 */
+			task := strings.Join(args[0:], " ")
+			r := strings.NewReplacer("\n", " ", "\t", " ", "\r", " ")
+			task = r.Replace(task)
+			task = strings.TrimSpace(task)
+
+			if c.GlobalBool("t") {
+				date := time.Now().Format("2006-01-02 ")
+				//fmt.Printf("(add::Action) date: %s\n", date)
+				task = date + task
+			}
+
+			// save the new task
+			//fmt.Printf("task: |%s|\n", task)
+			addAction(task)
+		},
+	}
+
+	// Initialize the app CLI
+	app := cli.NewApp()
+	app.Name = "go-todo"
+	app.Usage = "A simple and extensible utility for managing your todo.txt files"
+	app.Version = "1.0.0"
+	app.Author = "Mauro Toffanin"
+	app.Email = "toffanin.mauro@gmail.com"
+	app.EnableBashCompletion = true
+	app.Flags = []cli.Flag{
+		cli.StringFlag{"t", "", "Prepend the current date to a task automatically when it's added"},
+		cli.StringFlag{"T", "", "Do not prepend the current date to a task automatically when it's added."},
+	}
+	app.Action = func(c *cli.Context) {
+		args := c.Args()
+
+		// debugging
+		/*fmt.Printf("(app) args (%d): %s\n", len(args), args)
+		fmt.Printf("(app) global flag: %s\n", c.GlobalString("t"))*/
+
+		switch c.GlobalString("t") {
+		case "add":
+			// inject all the arguments into a new flag set
+			set := flag.NewFlagSet("add", 0)
+			set.Parse([]string{"add", strings.Join(args[0:], " ")})
+
+			// preserve the Global Flag by pushing the flag name as its value
+			// (it's a hack, but it works)
+			gset := flag.NewFlagSet("add", 0)
+			gset.Bool("t", true, "")
+
+			// create a new Context and run the relative Command
+			c := cli.NewContext(app, set, gset)
+			err := addCommand.Run(c)
+			check(err)
+			return
+		default:
+			// TODO: print error about misuse of the option -t missing 'add'
+		}
+		cli.ShowAppHelp(c)
+
+	}
+	app.Commands = []cli.Command{
+		envCommand,
+		initCommand,
+		addCommand,
 		/*{
 			Name:  "status",
 			Usage: "Obtain a summary of the todo.txt structure",
