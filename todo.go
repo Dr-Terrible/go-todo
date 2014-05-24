@@ -270,7 +270,7 @@ func main() {
 
 	envCommand := cli.Command{
 		Name:        "env",
-		Usage:       "Prints `todo` environment information.",
+		Usage:       "Print `todo` environment information",
 		Description: "By default env prints information as a shell script.\n   The environment info will be dumped in straight-forward\n   form suitable for sourcing into a shell script.\n\n   If one or more variable names is given as arguments, env\n   prints the value of each named variable on its own line.",
 		Action: func(c *cli.Context) {
 			// collect all the user-submitted arguments in an array
@@ -322,9 +322,18 @@ func main() {
 	}
 
 	shorthelpCommand := cli.Command{
-		Name:        "shorthelp",
-		Usage:       "",
-		Description: "",
+		Name:  "shorthelp",
+		Usage: "Show a usage message briefly summarizing all commands (a synonym for -h)",
+		Description: `
+   This command prints a summary of the command-line usage of 'todo' and all its
+   add-ons, then exit.
+
+   The 'shorthelp' command is supported only for backward-compatibility with the
+   original Todo.txt CLI from Gina Trapani, and falls back on the standard
+   help command.
+
+   You should use the POSIX-compliant option 'help, -h' instead.
+`,
 		Action: func(c *cli.Context) {
 			cli.ShowAppHelp(c)
 		},
@@ -333,7 +342,7 @@ func main() {
 	addCommand := cli.Command{
 		Name:      "add",
 		ShortName: "a",
-		Usage:     "Adds a task to your todo.txt file.",
+		Usage:     "Add a task to your todo.txt file",
 		Description: `
    This command can be used to add the specified task to your todo.txt file on
    its own line.
