@@ -19,8 +19,7 @@ This command-line tool requires Go 1.2 ( or higher) and you also need to have `g
 Once you have Go installed and your ``GOPATH`` set, do the following to build `go-todo`:
 
 ```
-git clone https://github.com/toffanin/go-todo.git todo
-cd todo
+git clone https://github.com/toffanin/go-todo.git
 go install todo.go
 ```
 
@@ -58,6 +57,19 @@ go run todo.go
   - [ ] replace
   - [ ] resort
   - [x] shorthelp
+  - [ ] -@ | -@@
+  - [ ] -+ | -++
+  - [ ] -c
+  - [ ] -d
+  - [ ] -f
+  - [ ] -h
+  - [ ] -p | -P
+  - [ ] -a | -A
+  - [ ] -n | -N
+  - [ ] -t | -T | TODOTXT_DATE_ON_ADD
+  - [ ] -v | -vv
+  - [ ] -V
+  - [ ] -x
 - [ ] extra commands not part of the original CLI sintax
   - [x] env - prints `go-todo` environment information
   - [ ] init - create a configuration file with default values

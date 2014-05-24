@@ -82,6 +82,7 @@ func addAction(task string) {
 
 	// determine the number of tasks in todo.txt
 	// TODO: with NewReadWriter the code should be more compact
+	//       buf := bufio.NewReadWriter(bufio.NewReader(r), bufio.NewWriter(w))
 	fd, err := os.OpenFile(TODOENV["TODO_FILE"], os.O_RDONLY|os.O_CREATE, 0600)
 	check(err)
 	scanner := bufio.NewScanner(fd)
@@ -320,6 +321,15 @@ func main() {
 		},
 	}
 
+	shorthelpCommand := cli.Command{
+		Name:        "shorthelp",
+		Usage:       "",
+		Description: "",
+		Action: func(c *cli.Context) {
+			cli.ShowAppHelp(c)
+		},
+	}
+
 	addCommand := cli.Command{
 		Name:      "add",
 		ShortName: "a",
@@ -439,6 +449,7 @@ EXAMPLES
 	app.Commands = []cli.Command{
 		envCommand,
 		initCommand,
+		shorthelpCommand,
 		addCommand,
 		/*{
 			Name:  "status",
