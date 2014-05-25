@@ -250,7 +250,7 @@ func main() {
 	}
 
 	// Populate TODOENV map with environment variables
-	for k, _ := range TODOENV {
+	for k := range TODOENV {
 		TODOENV[k] = os.Getenv(k)
 	}
 	//fmt.Println("map:", TODOENV)
