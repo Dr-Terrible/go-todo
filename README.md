@@ -33,7 +33,7 @@ go run todo.go
 # TODO
 
 - [ ] full compatibility with the Todo.txt CLI sintax
-  - [ ] add|a
+  - [x] add|a
   - [ ] addm
   - [ ] addto
   - [ ] append|app
@@ -60,16 +60,16 @@ go run todo.go
   - [ ] -@ | -@@
   - [ ] -+ | -++
   - [ ] -c
-  - [ ] -d
-  - [ ] -f
+  - [ ] -d | TODOTXT_CFG_FILE
+  - [ ] -f | TODOTXT_FORCE
   - [ ] -h
-  - [ ] -p | -P
-  - [ ] -a | -A
-  - [ ] -n | -N
-  - [ ] -t | -T | TODOTXT_DATE_ON_ADD
-  - [ ] -v | -vv
+  - [ ] -p | -P | TODOTXT_PLAIN
+  - [ ] -a | -A | TODOTXT_AUTO_ARCHIVE
+  - [ ] -n | -N | TODOTXT_PRESERVE_LINE_NUMBERS
+  - [x] -t | -T | TODOTXT_DATE_ON_ADD
+  - [ ] -v | -vv | TODOTXT_VERBOSE
   - [ ] -V
-  - [ ] -x
+  - [ ] -x | TODOTXT_DISABLE_FILTER
 - [ ] extra commands not part of the original CLI sintax
   - [x] env - prints `go-todo` environment information
   - [ ] init - create a configuration file with default values

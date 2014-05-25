@@ -348,7 +348,7 @@ func main() {
    This command can be used to add the specified task to your todo.txt file on
    its own line.
 
-   Project and content notation is optional. Quotes are optional too.
+   Project and content notation are optional. Quotation marks are optional too.
 
 EXAMPLES
 
@@ -379,38 +379,45 @@ EXAMPLES
 			args := c.Args()
 
 			// debugging
-			fmt.Printf("(add::Action) args (%d): %s\n", len(args), args)
-			fmt.Printf("(add::Action) global flag: %s (%t)\n", "-t", c.GlobalBool("t"))
+			/*fmt.Printf("(add::Action) args (%d): %s\n", len(args), args)
+			fmt.Printf("(add::Action) global flag: %s (%t)\n", "-t", c.GlobalBool("t"))*/
 
-			// check incorrect usage of the command
+			// task mangler
+			task := ""
 			switch {
 			case len(args) == 0: // no options specified
-				fmt.Print("\nIncorrect Usage: missing option with command \"add [task]\"\n\n")
-				cli.ShowCommandHelp(c, "add")
-				return
+
+				// check incorrect usage of the command
+				if c.GlobalBool("f") {
+					fmt.Print("\nDetected missing option with command \"add [task]\"\n")
+					fmt.Print("Usage: todo -f add [task]\"\n\n")
+					cli.ShowCommandHelp(c, "add")
+					return
+				}
+
+				// using interactive input
+				fmt.Print("Add: ")
+				task, err = bufio.NewReader(os.Stdin).ReadString('\n')
+				check(err)
+
+			default: // collect all the arguments into a single string
+				task = strings.Join(args[0:], " ")
 			}
 
 			// TODO: validating input as a task
 
-			/* task mangler
-			 * - collect all the arguments into a single string
-			 * - replace return carriage chars with spaces
-			 * - trim the task from leading / ending spaces
-			 * - honor the -t/-T global flag if present
-			 */
-			task := strings.Join(args[0:], " ")
-			r := strings.NewReplacer("\n", " ", "\t", " ", "\r", " ")
-			task = r.Replace(task)
+			// replace return carriage chars with spaces
+			// and trim leading / ending spaces
+			task = strings.NewReplacer("\n", " ", "\t", " ", "\r", " ").Replace(task)
 			task = strings.TrimSpace(task)
 
+			// honor the -t global flag
 			if c.GlobalBool("t") {
 				date := time.Now().Format("2006-01-02 ")
-				//fmt.Printf("(add::Action) date: %s\n", date)
 				task = date + task
 			}
 
 			// save the new task
-			//fmt.Printf("task: |%s|\n", task)
 			addAction(task)
 		},
 	}
@@ -426,6 +433,7 @@ EXAMPLES
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{"t", "Prepend the current date to a task automatically when it's added"},
 		cli.BoolFlag{"T", "Do not prepend the current date to a task automatically when it's added."},
+		cli.BoolFlag{"f", "Forces actions without confirmation or interactive input."},
 	}
 	app.Commands = []cli.Command{
 		envCommand,
@@ -443,6 +451,9 @@ EXAMPLES
 			},
 		},*/
 	}
-	err = app.Run(os.Args)
-	check(err)
+	if err := app.Run(os.Args); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 }
