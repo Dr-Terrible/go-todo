@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"flag"
+	//	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/codegangsta/cli"
+	//"github.com/fatih/color"
 	"github.com/joho/godotenv"
 )
 
@@ -378,8 +379,8 @@ EXAMPLES
 			args := c.Args()
 
 			// debugging
-			/*fmt.Printf("(add::Action) args (%d): %s\n", len(args), args)
-			fmt.Printf("(add::Action) global flag: %s\n", c.GlobalString("t"))*/
+			fmt.Printf("(add::Action) args (%d): %s\n", len(args), args)
+			fmt.Printf("(add::Action) global flag: %s (%t)\n", "-t", c.GlobalBool("t"))
 
 			// check incorrect usage of the command
 			switch {
@@ -423,37 +424,8 @@ EXAMPLES
 	app.Email = "toffanin.mauro@gmail.com"
 	app.EnableBashCompletion = true
 	app.Flags = []cli.Flag{
-		cli.StringFlag{"t", "", "Prepend the current date to a task automatically when it's added"},
-		cli.StringFlag{"T", "", "Do not prepend the current date to a task automatically when it's added."},
-	}
-	app.Action = func(c *cli.Context) {
-		args := c.Args()
-
-		// debugging
-		/*fmt.Printf("(app) args (%d): %s\n", len(args), args)
-		fmt.Printf("(app) global flag: %s\n", c.GlobalString("t"))*/
-
-		switch c.GlobalString("t") {
-		case "add":
-			// inject all the arguments into a new flag set
-			set := flag.NewFlagSet("add", 0)
-			set.Parse([]string{"add", strings.Join(args[0:], " ")})
-
-			// preserve the Global Flag by pushing the flag name as its value
-			// (it's a hack, but it works)
-			gset := flag.NewFlagSet("add", 0)
-			gset.Bool("t", true, "")
-
-			// create a new Context and run the relative Command
-			c := cli.NewContext(app, set, gset)
-			err := addCommand.Run(c)
-			check(err)
-			return
-		default:
-			// TODO: print error about misuse of the option -t missing 'add'
-		}
-		cli.ShowAppHelp(c)
-
+		cli.BoolFlag{"t", "Prepend the current date to a task automatically when it's added"},
+		cli.BoolFlag{"T", "Do not prepend the current date to a task automatically when it's added."},
 	}
 	app.Commands = []cli.Command{
 		envCommand,
