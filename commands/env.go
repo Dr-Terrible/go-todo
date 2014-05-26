@@ -8,7 +8,7 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-func GetEnvCommand() cli.Command {
+func GetEnv() cli.Command {
 
 	return cli.Command{
 		Name:  "env",

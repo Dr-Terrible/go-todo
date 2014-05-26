@@ -12,7 +12,7 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-func GetAddCommand() cli.Command {
+func GetAdd() cli.Command {
 
 	return cli.Command{
 		Name:      "add",
@@ -93,7 +93,7 @@ EXAMPLES
 	}
 }
 
-func GetAddmCommand() cli.Command {
+func GetAddm() cli.Command {
 
 	return cli.Command{
 		Name:      "addm",

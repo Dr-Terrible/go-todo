@@ -115,7 +115,7 @@ export TODOTXT_FORCE=0
 	}
 }
 
-func GetInitCommand() cli.Command {
+func GetInit() cli.Command {
 
 	return cli.Command{
 		Name:  "init",

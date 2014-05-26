@@ -14,7 +14,7 @@ import (
 func main() {
 
 	// Load Todo.txt CLI environment variables
-	utils.LoadTodoEnv()
+	utils.LoadConfig()
 
 	// Initialize the app CLI
 	app := cli.NewApp()
@@ -30,11 +30,12 @@ func main() {
 		cli.BoolFlag{"f", "Forces actions without confirmation or interactive input."},
 	}
 	app.Commands = []cli.Command{
-		commands.GetEnvCommand(),
-		commands.GetInitCommand(),
-		commands.GetShorthelpCommand(),
-		commands.GetAddCommand(),
-		commands.GetAddmCommand(),
+		commands.GetEnv(),
+		commands.GetInit(),
+		commands.GetShorthelp(),
+		commands.GetAdd(),
+		commands.GetAddm(),
+		commands.GetList(),
 		/*{
 			Name:  "status",
 			Usage: "Obtain a summary of the todo.txt structure",
