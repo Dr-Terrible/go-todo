@@ -24,7 +24,7 @@ var (
 	/*
 	 * This map stores all the environment variables used by the todo.txt CLI
 	 */
-	TODOENV = map[string]string{
+	Settings = map[string]string{
 		"TODO_DIR":             "",
 		"TODO_FILE":            "",
 		"DONE_FILE":            "",
@@ -46,7 +46,7 @@ var (
 	 * /etc/todo/config
 	 */
 	// TODO: transform the slice into a map[string]bool where the boolean value defines if the config file exists
-	CFG = []string{
+	ConfPaths = []string{
 		"$HOME/todo.cfg",
 		"$HOME/.todo.cfg",
 		"./todo.cfg",
@@ -61,17 +61,32 @@ func GetPwd() string {
 	return ENV["PWD"]
 }
 
-func SetTodoEnv(key string, value string) error {
+func SetSetting(name string, value string) error {
 	return nil
 }
-func GetTodoEnv(key string) string {
-	if key == "" {
+func GetSetting(name string) string {
+	if name == "" {
 		return ""
 	}
-	return TODOENV[key]
+	return Settings[name]
 }
 
-func LoadTodoEnv() {
+// TODO: Determines if the setting was actually set in todo.cfg
+func HasSetting(name string) bool {
+	return true
+}
+
+// TODO: Looks up the value of a setting, returns false if no bool value exists
+func IsSettingBool(name string) bool {
+	return true
+}
+
+// TODO: Returns the all the settings
+func GetSettings() map[string]string {
+	return Settings
+}
+
+func LoadConfig() {
 	// Retrieve environment variables $HOME and $PWD
 	pwd, err := os.Getwd()
 	Check(err)
@@ -88,18 +103,18 @@ func LoadTodoEnv() {
 	 * with the original bash script.
 	 */
 	if ENV["HOME"] != "" {
-		// $HOME isn't empty, we expand $HOME for CFG[0] and CFG[1]
-		CFG[0] = strings.Replace(CFG[0], "$HOME", ENV["HOME"], -1)
-		CFG[1] = strings.Replace(CFG[1], "$HOME", ENV["HOME"], -1)
+		// $HOME isn't empty, we expand $HOME for ConfPaths[0] and ConfPaths[1]
+		ConfPaths[0] = strings.Replace(ConfPaths[0], "$HOME", ENV["HOME"], -1)
+		ConfPaths[1] = strings.Replace(ConfPaths[1], "$HOME", ENV["HOME"], -1)
 	} else {
-		// $HOME is empty, we unset CFG[0] and CFG[1]
-		CFG[0] = ""
-		CFG[1] = ""
+		// $HOME is empty, we unset ConfPaths[0] and ConfPaths[1]
+		ConfPaths[0] = ""
+		ConfPaths[1] = ""
 	}
 
 	// Load environment variables from all the configuration files
-	// specified in the slice 'CFG'
-	for _, filepath := range CFG {
+	// specified in the slice 'ConfPaths'
+	for _, filepath := range ConfPaths {
 		if filepath != "" {
 			ret, err := Exists(filepath)
 			Check(err)
@@ -113,24 +128,24 @@ func LoadTodoEnv() {
 		}
 	}
 
-	// Populate TODOENV map with environment variables
-	for k := range TODOENV {
-		TODOENV[k] = os.Getenv(k)
+	// Populate Settings map with environment variables
+	for k := range Settings {
+		Settings[k] = os.Getenv(k)
 	}
-	//fmt.Println("map:", TODOENV)
+	//fmt.Println("map:", Settings)
 
-	// Sanitize TODOENV map by expanding bash variables
-	for k, v := range TODOENV {
+	// Sanitize Settings map by expanding bash variables
+	for k, v := range Settings {
 		// expand $HOME var
 		v = strings.Replace(v, "$HOME", ENV["HOME"], -1)
 		v = strings.Replace(v, "${HOME}", ENV["HOME"], -1)
 
 		// Expand $TODO_DIR var
-		v = strings.Replace(v, "$TODO_DIR", TODOENV["TODO_DIR"], -1)
-		v = strings.Replace(v, "${TODO_DIR}", TODOENV["TODO_DIR"], -1)
+		v = strings.Replace(v, "$TODO_DIR", Settings["TODO_DIR"], -1)
+		v = strings.Replace(v, "${TODO_DIR}", Settings["TODO_DIR"], -1)
 
 		// save the sanitized value
-		TODOENV[k] = v
+		Settings[k] = v
 	}
 }
 
