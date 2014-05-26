@@ -69,10 +69,8 @@ EXAMPLES
 					return
 				}
 
-				// using interactive input
-				fmt.Print("Add: ")
-				task, _ = bufio.NewReader(os.Stdin).ReadString('\n')
-				//check(err)
+				// invoke interactive input
+				task = utils.InteractiveInput("Add:")
 
 			default: // collect all the arguments into a single string
 				task = strings.Join(args[0:], " ")
@@ -80,10 +78,8 @@ EXAMPLES
 
 			// TODO: validating input as a task
 
-			// replace return carriage chars with spaces
-			// and trim leading / ending spaces
-			task = strings.NewReplacer("\n", " ", "\t", " ", "\r", " ").Replace(task)
-			task = strings.TrimSpace(task)
+			// sanitize input
+			task = utils.SanitizeInput(task)
 
 			// honor the -t global flag
 			if c.GlobalBool("t") {
@@ -93,6 +89,62 @@ EXAMPLES
 
 			// save the new task
 			addAction(task)
+		},
+	}
+}
+
+func GetAddmCommand() cli.Command {
+
+	return cli.Command{
+		Name:      "addm",
+		ShortName: "",
+		Usage:     "Add multiple tasks to your todo.txt file",
+		Description: `
+   This command can be used to add the specified tasks to your todo.txt file.
+
+   Project and content notation are optional. Quotation marks are optional too.
+
+EXAMPLES
+
+   Adds some simple tasks (quotes are optional):
+
+	  $ todo addm "Buy eggs and milk @grocery"
+	  $ > Buy a cake for friday's dinner party with friends @backery
+`,
+		Action: func(c *cli.Context) {
+			// collect all the user-submitted arguments in an array
+			args := c.Args()
+
+			// check incorrect usage of the command
+			if len(args) == 0 {
+				fmt.Print("\nDetected missing option with command \"addm [task]\"\n")
+				fmt.Print("Usage: todo addm [task]\"\n\n")
+				cli.ShowCommandHelp(c, "addm")
+				return
+			}
+
+			// collect all the arguments into a single string
+			firstTask := strings.Join(args[0:], " ")
+
+			// invoke interactive input
+			secondTask := utils.InteractiveInput(">")
+
+			// TODO: validating input as a task
+
+			// sanitize tasks
+			firstTask = utils.SanitizeInput(firstTask)
+			secondTask = utils.SanitizeInput(secondTask)
+
+			// honor the -t global flag
+			if c.GlobalBool("t") {
+				date := time.Now().Format("2006-01-02 ")
+				firstTask = date + firstTask
+				secondTask = date + secondTask
+			}
+
+			// save taska
+			addAction(firstTask)
+			addAction(secondTask)
 		},
 	}
 }

@@ -32,6 +32,8 @@ var (
 		"TODO_ACTIONS_DIR":     "",
 		"TODOTXT_SORT_COMMAND": "",
 		"TODOTXT_FINAL_FILTER": "",
+		"TODOTXT_DATE_ON_ADD":  "0",
+		"TODOTXT_FORCE":        "0",
 	}
 
 	/* This slice defines all the possible paths for the configuration files.
@@ -149,15 +151,33 @@ func Exists(path string) (bool, error) {
 	inputBuffer *bufio.Reader
 )*/
 
-func InteractiveInput() string {
+func InteractiveInput(prompt string) string {
+	if prompt != "" {
+		fmt.Printf("%s ", prompt)
+	}
 	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	Check(err)
 
-	// replace return carriage chars with spaces
-	// and trim leading / ending spaces
-	input = strings.NewReplacer("\n", " ", "\t", " ", "\r", " ").Replace(input)
-	return strings.TrimSpace(input)
-	//return strings.TrimSpace(string(line))
+	// sanitize
+	return SanitizeInput(input)
+}
+
+/* CleanInput applies the following rules iteratively until no further
+ * processing can be done:
+ *
+ * - trim all the extra white spaces
+ * - trim all return carriage chars
+ * - trim leading / ending quotation marks
+ * - trim leading / ending spaces
+ */
+func SanitizeInput(input string) string {
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return input
+	}
+	input = strings.TrimPrefix(input, "\"")
+	input = strings.TrimSuffix(input, "\"")
+	return strings.NewReplacer("  ", " ", "\n", " ", "\t", " ", "\r", " ").Replace(input)
 }
 
 /*func buffer() *bufio.Reader {

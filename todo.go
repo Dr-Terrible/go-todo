@@ -16,32 +16,6 @@ func main() {
 	// Load Todo.txt CLI environment variables
 	utils.LoadTodoEnv()
 
-	/*	initCommand := cli.Command{
-				Name:  "init",
-				Usage: "Initialize a new todo.txt structure with default values",
-				Description: `
-		   This command creates all the template file required by the todo.txt and
-		   a configuration files with default values - basically, the values TODO_DIR,
-		   TODO_FILE, DONE_FILE, REPORT_FILE and TODO_ACTIONS_DIR are exported.
-
-		   If the option '--dest' is set then it specifies a path to use instead of
-		   the working directory as the destination path for the new structure.
-
-		   Running 'todo init' in a pre-initialized directory is safe; it will not
-		   overwrite things that are already there.`,
-				Flags: []cli.Flag{
-					cli.StringFlag{"dest, d", "/path/to/your/dir", "specifies a different destination path"},
-				},
-				Action: func(c *cli.Context) {
-					destination := "."
-					if c.IsSet("dest") {
-						//fmt.Println("dest:", c.String("dest"))
-						destination = c.String("dest")
-					}
-					initAction(destination)
-				},
-			}*/
-
 	// Initialize the app CLI
 	app := cli.NewApp()
 	app.Name = "go-todo"
@@ -60,6 +34,7 @@ func main() {
 		commands.GetInitCommand(),
 		commands.GetShorthelpCommand(),
 		commands.GetAddCommand(),
+		commands.GetAddmCommand(),
 		/*{
 			Name:  "status",
 			Usage: "Obtain a summary of the todo.txt structure",

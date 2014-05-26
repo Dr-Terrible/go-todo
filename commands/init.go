@@ -23,7 +23,7 @@ func initAction(destination string) {
 
 		FileTemplate = map[string]string{
 			"cfg": `
-# === EDIT FILE LOCATIONS BELOW ===
+# === FILE LOCATIONS ===
 
 # Your todo.txt directory
 #export TODO_DIR="$HOME/todo"
@@ -35,7 +35,16 @@ export DONE_FILE="$TODO_DIR/done.txt"
 export REPORT_FILE="$TODO_DIR/report.txt"
 
 # You can customize your actions directory location
-#export TODO_ACTIONS_DIR="$HOME/.todo.actions.d"`,
+#export TODO_ACTIONS_DIR="$HOME/.todo.actions.d"
+
+# === APP OPTIONS ===
+
+# is same as option -t (1)/-T (0)
+export TODOTXT_DATE_ON_ADD=0
+
+# is same as option -f
+export TODOTXT_FORCE=0
+`,
 			"todo":   "",
 			"done":   "",
 			"report": "",
