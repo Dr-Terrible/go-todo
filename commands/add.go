@@ -151,11 +151,11 @@ EXAMPLES
 
 // Adds a task to a todo.txt file.
 func addAction(task string) {
-	file := utils.GetTodoEnv("TODO_FILE")
+	file := utils.GetSetting("TODO_FILE")
 
-	// TODO: TODOENV["TODO_FILE"] path should be validated somehow
+	// TODO: file path should be validated somehow
 	// before to be stated by os.OpenFile
-	//path.Clean(TODOENV["TODO_FILE"])
+	//path.Clean(file)
 
 	// determine the number of tasks in todo.txt
 	// TODO: with NewReadWriter the code should be more compact
