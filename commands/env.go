@@ -11,9 +11,17 @@ import (
 func GetEnvCommand() cli.Command {
 
 	return cli.Command{
-		Name:        "env",
-		Usage:       "Print `todo` environment information",
-		Description: "By default env prints information as a shell script.\n   The environment info will be dumped in straight-forward\n   form suitable for sourcing into a shell script.\n\n   If one or more variable names is given as arguments, env\n   prints the value of each named variable on its own line.",
+		Name:  "env",
+		Usage: "Print `todo` environment information",
+		Description: `
+   By default env prints information as a shell script.
+
+   The environment info will be dumped in straight-forward form suitable for
+   sourcing into a shell script.
+
+   If one or more variable names is given as arguments, 'env' prints the value
+   of each named variable on its own line.
+   `,
 		Action: func(c *cli.Context) {
 			// collect all the user-submitted arguments in an array
 			args := c.Args()
@@ -26,11 +34,11 @@ func GetEnvCommand() cli.Command {
 			case true:
 				// print only the required environment variables
 				for _, arg := range args {
-					fmt.Printf("%s=\"%s\"\n", arg, utils.TODOENV[arg])
+					fmt.Printf("%s=\"%s\"\n", arg, utils.GetSetting(arg))
 				}
 			case false:
 				// print all the environment variables
-				for k, v := range utils.TODOENV {
+				for k, v := range utils.GetSettings() {
 					fmt.Printf("%s=\"%s\"\n", k, v)
 				}
 			}
