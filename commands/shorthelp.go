@@ -4,7 +4,7 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-func GetShorthelpCommand() cli.Command {
+func GetShorthelp() cli.Command {
 
 	return cli.Command{
 		Name:  "shorthelp",
