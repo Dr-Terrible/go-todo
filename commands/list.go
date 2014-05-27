@@ -25,6 +25,8 @@ func GetList() cli.Command {
 			// TODO: Build and apply the filter
 
 			// print output
+			/*tasklist := TaskList{}
+			file, err := os.Open(filename)*/
 		},
 	}
 }

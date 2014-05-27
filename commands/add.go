@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"../utils"
+	"github.com/toffanin/go-todo/utils"
 
 	"github.com/codegangsta/cli"
 )

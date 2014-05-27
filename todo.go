@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"./commands"
-	"./utils"
+	"github.com/toffanin/go-todo/commands"
+	"github.com/toffanin/go-todo/utils"
 
 	"github.com/codegangsta/cli"
 	//"github.com/fatih/color"
