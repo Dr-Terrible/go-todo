@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -151,17 +152,51 @@ EXAMPLES
 
 // Adds a task to a todo.txt file.
 func addAction(task string) {
-	file := utils.GetSetting("TODO_FILE")
 
-	// TODO: file path should be validated somehow
-	// before to be stated by os.OpenFile
-	//path.Clean(file)
+	todoFile := utils.GetSetting("TODO_FILE")
+	todoDir := path.Dir(todoFile)
+	//fmt.Printf("*DIR: %s\n", todoDir)
+
+	// validate dir path
+	finfo, err := os.Stat(todoDir)
+	//fmt.Printf("FileMode IsDir: %t\n", finfo.Mode().IsDir())
+	//fmt.Printf("FileMode IsRegular: %t\n", finfo.Mode().IsRegular())
+	//fmt.Printf("FileMode Perm: %t\n", finfo.Mode().Perm())
+	if err != nil {
+		// path doesn't exists
+		if os.IsNotExist(err) {
+			fmt.Printf("DIR:%s doesn't exists.\n", todoDir)
+			fmt.Printf("Please create the missing directory with: `mkdir -p %s`.\n\n", todoDir)
+			os.Exit(1)
+		}
+
+		// brace yourself: unknown errors are coming
+		utils.Check(err)
+	}
+
+	// path exists but is not a directory
+	if !finfo.IsDir() {
+		fmt.Printf("DIR:%s is not a directory.\n", todoDir)
+		fmt.Println("Please fix your todo.cfg file and be sure to specify a directory with an absolute path.")
+		os.Exit(1)
+	}
 
 	// determine the number of tasks in todo.txt
 	// TODO: with NewReadWriter the code should be more compact
 	//       buf := bufio.NewReadWriter(bufio.NewReader(r), bufio.NewWriter(w))
-	fd, err := os.OpenFile(file, os.O_RDONLY|os.O_CREATE, 0600)
-	utils.Check(err)
+	fd, err := os.OpenFile(todoFile, os.O_RDONLY|os.O_CREATE, 0600)
+	if err != nil {
+		// file isn't readable
+		if os.IsPermission(err) {
+			fmt.Printf("%s or %s don't have correct permission bits.\n", todoFile, todoDir)
+			fmt.Println("Please fix the directory / file permissions")
+			os.Exit(1)
+		}
+
+		// brace yourself: unknown errors are coming
+		utils.Check(err)
+	}
+
 	scanner := bufio.NewScanner(fd)
 	ntasks := 1
 	for scanner.Scan() {
@@ -176,7 +211,7 @@ func addAction(task string) {
 	utils.Check(err)
 
 	// Open todo.txt in append mode only
-	fd, err = os.OpenFile(file, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
+	fd, err = os.OpenFile(todoFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
 	utils.Check(err)
 	defer fd.Close()
 
