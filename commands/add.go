@@ -40,7 +40,7 @@ EXAMPLES
    Adds tasks with a context notation (quotes are optional):
 
 	  $ todo add "Buy eggs and milk @grocery"
-	  $ todo add "Buy a cake for friday's dinner party with friends @backery"
+	  $ todo add "Buy a cake for Friday's dinner party with friends @backery"
 
    Adds tasks with both project and context notation (quotes are optional):
 
