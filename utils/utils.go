@@ -102,6 +102,7 @@ func LoadConfig() {
 	 * ${var} and $var expansion is mimicked to guarantee backward-compatibility
 	 * with the original bash script.
 	 */
+	//fmt.Printf("ConfPaths (raw)     : %s\n", ConfPaths)
 	if ENV["HOME"] != "" {
 		// $HOME isn't empty, we expand $HOME for ConfPaths[0] and ConfPaths[1]
 		ConfPaths[0] = strings.Replace(ConfPaths[0], "$HOME", ENV["HOME"], -1)
@@ -111,13 +112,13 @@ func LoadConfig() {
 		ConfPaths[0] = ""
 		ConfPaths[1] = ""
 	}
+	//fmt.Printf("ConfPaths (filtered): %s\n", ConfPaths)
 
 	// Load environment variables from all the configuration files
 	// specified in the slice 'ConfPaths'
 	for _, filepath := range ConfPaths {
 		if filepath != "" {
 			ret, err := Exists(filepath)
-			Check(err)
 			//fmt.Printf("checking: %s (%t) \n", filepath, ret)
 
 			// if the conf file exists, load it with godotenv
@@ -125,6 +126,8 @@ func LoadConfig() {
 				err := godotenv.Load(filepath)
 				Check(err)
 			}
+
+			Check(err)
 		}
 	}
 
@@ -132,21 +135,25 @@ func LoadConfig() {
 	for k := range Settings {
 		Settings[k] = os.Getenv(k)
 	}
-	//fmt.Println("map:", Settings)
+	//fmt.Println("Settings: (raw)     : ", Settings)
 
-	// Sanitize Settings map by expanding bash variables
+	// Sanitize Settings map by expanding $HOME bash variables
 	for k, v := range Settings {
-		// expand $HOME var
 		v = strings.Replace(v, "$HOME", ENV["HOME"], -1)
 		v = strings.Replace(v, "${HOME}", ENV["HOME"], -1)
 
-		// Expand $TODO_DIR var
+		// save the sanitized value
+		Settings[k] = v
+	}
+	// Sanitize Settings map by expanding $TODO_DIR bash variables
+	for k, v := range Settings {
 		v = strings.Replace(v, "$TODO_DIR", Settings["TODO_DIR"], -1)
 		v = strings.Replace(v, "${TODO_DIR}", Settings["TODO_DIR"], -1)
 
 		// save the sanitized value
 		Settings[k] = v
 	}
+	//fmt.Println("Settings: (filtered): ", Settings)
 }
 
 // Exists returns true if the given path exists.
