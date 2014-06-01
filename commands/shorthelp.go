@@ -8,7 +8,7 @@ func GetShorthelp() cli.Command {
 
 	return cli.Command{
 		Name:  "shorthelp",
-		Usage: "Show a usage message briefly summarizing all commands (a synonym for -h)",
+		Usage: "Shows a usage message briefly summarizing all commands (a synonym for -h)",
 		Description: `
    This command prints a summary of the command-line usage of 'todo' and all its
    add-ons, then exit.

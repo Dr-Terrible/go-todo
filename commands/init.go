@@ -119,17 +119,18 @@ func GetInit() cli.Command {
 
 	return cli.Command{
 		Name:  "init",
-		Usage: "Initialize a new todo.txt structure with default values",
+		Usage: "Initializes a new todo.txt structure with default values",
 		Description: `
-   This command creates all the template file required by the todo.txt and
+   This command creates all the template files required by the todo.txt and
    a configuration files with default values - basically, the values TODO_DIR,
    TODO_FILE, DONE_FILE, REPORT_FILE and TODO_ACTIONS_DIR are exported.
 
    If the option '--dest' is set then it specifies a path to use instead of
-   the working directory as the destination path for the new structure.
+   the working directory as the destination for the new structure.
 
    Running 'todo init' in a pre-initialized directory is safe; it will not
-   overwrite things that are already there.`,
+   overwrite things that are already there.
+`,
 		Flags: []cli.Flag{
 			cli.StringFlag{"dest, d", "/path/to/your/dir", "specifies a different destination path"},
 		},

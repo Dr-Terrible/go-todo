@@ -18,7 +18,7 @@ func GetAdd() cli.Command {
 	return cli.Command{
 		Name:      "add",
 		ShortName: "a",
-		Usage:     "Add a task to your todo.txt file",
+		Usage:     "Adds a task to your todo.txt file",
 		Description: `
    This command can be used to add the specified task to your todo.txt file on
    its own line.
@@ -46,7 +46,7 @@ EXAMPLES
 
 	  $ todo add "Feed the kitten +BellyOfTheBeast"
 	  $ todo add "Buy food with amino acid taurine @petshop +BellyOfTheBeast"
-	  $ todo add "Buy huge amont of meat @butcher +BellyOfTheBeast"
+	  $ todo add "Buy huge amount of meat @butcher +BellyOfTheBeast"
 	  $ todo add "Hire a bouncer to protect @kitchen cupboard from the cat +BellyOfTheBeast"
 `,
 		Action: func(c *cli.Context) {
@@ -82,7 +82,7 @@ EXAMPLES
 			// sanitize input
 			task = utils.SanitizeInput(task)
 
-			// honor the -t global flag
+			// honour the -t global flag
 			if c.GlobalBool("t") {
 				date := time.Now().Format("2006-01-02 ")
 				task = date + task
@@ -99,7 +99,7 @@ func GetAddm() cli.Command {
 	return cli.Command{
 		Name:      "addm",
 		ShortName: "",
-		Usage:     "Add multiple tasks to your todo.txt file",
+		Usage:     "Adds multiple tasks to your todo.txt file",
 		Description: `
    This command can be used to add the specified tasks to your todo.txt file.
 
@@ -110,7 +110,7 @@ EXAMPLES
    Adds some simple tasks (quotes are optional):
 
 	  $ todo addm "Buy eggs and milk @grocery"
-	  $ > Buy a cake for friday's dinner party with friends @backery
+	  $ > Buy a cake for Friday's dinner party with friends @backery
 `,
 		Action: func(c *cli.Context) {
 			// collect all the user-submitted arguments in an array
@@ -136,14 +136,14 @@ EXAMPLES
 			firstTask = utils.SanitizeInput(firstTask)
 			secondTask = utils.SanitizeInput(secondTask)
 
-			// honor the -t global flag
+			// honour the -t global flag
 			if c.GlobalBool("t") {
 				date := time.Now().Format("2006-01-02 ")
 				firstTask = date + firstTask
 				secondTask = date + secondTask
 			}
 
-			// save taska
+			// save task
 			addAction(firstTask)
 			addAction(secondTask)
 		},

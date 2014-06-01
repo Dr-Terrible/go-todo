@@ -12,16 +12,16 @@ func GetEnv() cli.Command {
 
 	return cli.Command{
 		Name:  "env",
-		Usage: "Print `todo` environment information",
+		Usage: "Prints `todo` environment information",
 		Description: `
-   By default env prints information as a shell script.
+   By default 'env' prints information as a shell script.
 
-   The environment info will be dumped in straight-forward form suitable for
+   The environment info will be dumped in a straight-forward form suitable for
    sourcing into a shell script.
 
    If one or more variable names is given as arguments, 'env' prints the value
    of each named variable on its own line.
-   `,
+`,
 		Action: func(c *cli.Context) {
 			// collect all the user-submitted arguments in an array
 			args := c.Args()

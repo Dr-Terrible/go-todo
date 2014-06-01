@@ -25,8 +25,8 @@ func main() {
 	app.Email = "toffanin.mauro@gmail.com"
 	app.EnableBashCompletion = true
 	app.Flags = []cli.Flag{
-		cli.BoolFlag{"t", "Prepend the current date to a task automatically when it's added"},
-		cli.BoolFlag{"T", "Do not prepend the current date to a task automatically when it's added."},
+		cli.BoolFlag{"t", "Prefixes the current date to a task automatically when it's added"},
+		cli.BoolFlag{"T", "Do not prefix the current date to a task automatically when it's added."},
 		cli.BoolFlag{"f", "Forces actions without confirmation or interactive input."},
 	}
 	app.Commands = []cli.Command{
