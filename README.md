@@ -9,7 +9,7 @@
 
 ## Purpose
 
-This package is meant to be a [Golang](http://golang.org) implementation of Gina Trapani's [todo.txt-cli](https://github.com/ginatrapani/todo.txt-cli) which doesn't rely on other external dependencies (such as bash, grep, awk and sed) and can integrate into 3rd party systems and APIs.
+This package is meant to be a [Golang](http://golang.org) implementation of Gina Trapani's [todo.txt-cli](https://github.com/ginatrapani/todo.txt-cli) which doesn't rely on other external dependencies (such as bash, cat, grep, awk, sort and sed) and can integrate into 3rd party systems and APIs.
 
 
 ## Requirements
@@ -45,6 +45,8 @@ go run todo.go
   - [ ] do
   - [x] help
   - [ ] list|ls
+    - [ ] TERMS
+    - [ ] logical operators
   - [ ] listall|lsa
   - [ ] listaddons
   - [ ] listcon|lsc
