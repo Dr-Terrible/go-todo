@@ -80,10 +80,10 @@ func InteractiveInput(prompt string) string {
 // SanitizeInput applies the following rules iteratively until no further
 // processing can be done:
 //
-// - trim all the extra white spaces
-// - trim all return carriage chars
-// - trim leading / ending quotation marks
-// - trim leading / ending spaces
+//   1. trim all the extra white spaces
+//   2. trim all return carriage chars
+//   3. trim leading / ending quotation marks (ex.: "my text")
+//   4. trim leading / ending spaces
 //
 func SanitizeInput(input string) string {
 	input = strings.TrimSpace(input)
@@ -93,4 +93,42 @@ func SanitizeInput(input string) string {
 	input = strings.TrimPrefix(input, "\"")
 	input = strings.TrimSuffix(input, "\"")
 	return strings.NewReplacer("  ", " ", "\n", " ", "\t", " ", "\r", " ").Replace(input)
+}
+
+// PaddingRight creates a new string by concatenating enough trailing pad
+// characters to an original string to achieve a specified total length.
+//
+// The following code example uses PaddingRight to create a new string
+// that is 5 characters long and padded on the right with zeros:
+//
+//   func main() {
+//     str := "12"
+//     fmt.Println(PaddingRight(str, "0", 5))   // expects 12000
+//   }
+func PaddingRight(str, pad string, lenght int) string {
+	for {
+		str += pad
+		if len(str) > lenght {
+			return str[0:lenght]
+		}
+	}
+}
+
+// PaddingLeft creates a new string by concatenating enough leading pad
+// characters to an original string to achieve a specified total length.
+//
+// The following code example uses PaddingLeft  to create a new string
+// that is 5 characters long and padded on the left with zeros:
+//
+//   func main() {
+//     str := "12"
+//     fmt.Println(PaddingLeft(str, "0", 5))    // expects 00012
+//   }
+func PaddingLeft(str, pad string, lenght int) string {
+	for {
+		str = pad + str
+		if len(str) > lenght {
+			return str[1 : lenght+1]
+		}
+	}
 }
