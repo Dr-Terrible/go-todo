@@ -47,6 +47,7 @@ go run todo.go
   - [ ] list|ls
     - [ ] TERMS
     - [ ] logical operators
+    - [x] TODOTXT_VERBOSE
   - [ ] listall|lsa
   - [ ] listaddons
   - [ ] listcon|lsc

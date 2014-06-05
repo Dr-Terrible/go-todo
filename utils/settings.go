@@ -29,6 +29,7 @@ var (
 		"TODOTXT_FINAL_FILTER": "",
 		"TODOTXT_DATE_ON_ADD":  "0",
 		"TODOTXT_FORCE":        "0",
+		"TODOTXT_VERBOSE":      "0",
 	}
 
 	/* This slice defines all the possible paths for the configuration files.
