@@ -54,6 +54,9 @@ ENVIRONMENT VARIABLES:
 	// The text template for the command help topic.
 	commandHelpTemplate = `
 NAME:
+   ` + appName + `
+
+COMMAND:
    {{.Name}} - {{.Usage}}
 
 USAGE:
