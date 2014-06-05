@@ -1,3 +1,7 @@
+// Copyright (c) 2014, Mauro Toffanin. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package commands
 
 import (
@@ -121,12 +125,12 @@ func GetInit() cli.Command {
 		Name:  "init",
 		Usage: "Initializes a new todo.txt structure with default values",
 		Description: `
-   This command creates all the template files required by the todo.txt and
-   a configuration files with default values - basically, the values TODO_DIR,
+   This command creates all the template files necessary to execute 'todo' and
+   a configuration file with basic default values - the values TODO_DIR,
    TODO_FILE, DONE_FILE, REPORT_FILE and TODO_ACTIONS_DIR are exported.
 
    If the option '--dest' is set then it specifies a path to use instead of
-   the working directory as the destination for the new structure.
+   the working directory as the destination for the new structure of files.
 
    Running 'todo init' in a pre-initialized directory is safe; it will not
    overwrite things that are already there.

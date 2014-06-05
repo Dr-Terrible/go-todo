@@ -1,3 +1,7 @@
+// Copyright (c) 2014, Mauro Toffanin. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package commands
 
 import (
@@ -105,7 +109,7 @@ func GetAddm() cli.Command {
 
    Project and content notation are optional. Quotation marks are optional too.
 
-EXAMPLES
+EXAMPLES:
 
    Adds some simple tasks (quotes are optional):
 
